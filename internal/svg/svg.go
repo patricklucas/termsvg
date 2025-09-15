@@ -141,7 +141,7 @@ func (c *Canvas) addStyles() {
 		"animation-iteration-count": "infinite",
 		"animation-name":            "k",
 		"animation-timing-function": "steps(1,end)",
-		"font-family":               "Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace",
+		"font-family":               "Monego,Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace",
 		"font-size":                 "20px",
 	}.String())
 
@@ -174,17 +174,35 @@ func (c *Canvas) createFrames() {
 
 		for row := 0; row < c.Header.Height; row++ {
 			frame := ""
+			lastIsBold := isBold(term.Cell(0, row))
+			lastIsItalic := isItalic(term.Cell(0, row))
 			lastColor := term.Cell(0, row).FG
 			lastColummn := 0
 
 			for col := 0; col < c.Header.Width; col++ {
 				cell := term.Cell(col, row)
 				c.addBG(cell.BG)
+				cellIsBold := isBold(cell)
+				cellIsItalic := isItalic(cell)
 
-				if cell.Char == ' ' || cell.FG != lastColor {
+				if cell.Char == ' ' || cell.FG != lastColor || cellIsBold != lastIsBold || cellIsItalic != lastIsItalic {
+					var bold string
+					if lastIsBold {
+						bold = "font-weight=\"bold\""
+					} else {
+						bold = ""
+					}
+
+					var ital string
+					if lastIsItalic {
+						ital = "font-style=\"italic\""
+					} else {
+						ital = ""
+					}
+
 					if frame != "" {
 						c.Text(lastColummn*colWidth,
-							row*rowHeight, frame, fmt.Sprintf(`class="%s"`, c.colors[color.GetColor(lastColor)]), c.applyBG(cell.BG))
+							row*rowHeight, frame, fmt.Sprintf(`class="%s"`, c.colors[color.GetColor(lastColor)]), c.applyBG(cell.BG), bold, ital)
 
 						frame = ""
 					}
@@ -193,6 +211,8 @@ func (c *Canvas) createFrames() {
 						lastColummn = col + 1
 						continue
 					}
+					lastIsBold = cellIsBold
+					lastIsItalic = cellIsItalic
 					lastColor = cell.FG
 					lastColummn = col
 
@@ -231,6 +251,14 @@ func (c *Canvas) applyBG(bg vt10x.Color) string {
 	}
 
 	return ""
+}
+
+func isBold(g vt10x.Glyph) bool {
+	return g.Mode&4 != 0
+}
+
+func isItalic(g vt10x.Glyph) bool {
+	return g.Mode&16 != 0
 }
 
 func generateKeyframes(cast asciicast.Cast, width int) string {
