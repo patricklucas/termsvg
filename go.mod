@@ -24,3 +24,5 @@ require (
 	github.com/tdewolff/parse/v2 v2.8.1 // indirect
 	golang.org/x/sys v0.34.0 // indirect
 )
+
+replace github.com/hinshun/vt10x => github.com/patricklucas/vt10x v0.0.0-20250916085948-e0acaf9755dc

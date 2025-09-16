@@ -93,7 +93,23 @@ func parseCast(c *Canvas) {
 	}
 }
 
+func rgbToInt(r uint8, g uint8, b uint8) uint32 {
+	//nolint:gosec
+	return uint32(r)<<16 | uint32(g)<<8 | uint32(b)
+}
+
 func (c *Canvas) getColors(cell vt10x.Glyph) {
+	if isBold(cell) {
+		x := uint8(0xFF)
+		cell.FG = vt10x.Color(rgbToInt(x, x, x))
+	} else if isDim(cell) {
+		x := uint8(0x64)
+		cell.FG = vt10x.Color(rgbToInt(x, x, x))
+	} else if cell.FG == 16777216 {
+		x := uint8(0xC7)
+		cell.FG = vt10x.Color(rgbToInt(x, x, x))
+	}
+
 	fg := color.GetColor(cell.FG)
 
 	if _, ok := c.colors[fg]; !ok {
@@ -141,7 +157,7 @@ func (c *Canvas) addStyles() {
 		"animation-iteration-count": "infinite",
 		"animation-name":            "k",
 		"animation-timing-function": "steps(1,end)",
-		"font-family":               "Monego,Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace",
+		"font-family":               "Monaco,Consolas,Menlo,'Bitstream Vera Sans Mono','Powerline Symbols',monospace",
 		"font-size":                 "20px",
 	}.String())
 
@@ -184,6 +200,18 @@ func (c *Canvas) createFrames() {
 				c.addBG(cell.BG)
 				cellIsBold := isBold(cell)
 				cellIsItalic := isItalic(cell)
+				cellIsDim := isDim(cell)
+
+				if cellIsBold {
+					x := uint8(0xFF)
+					cell.FG = vt10x.Color(rgbToInt(x, x, x))
+				} else if cellIsDim {
+					x := uint8(0x64)
+					cell.FG = vt10x.Color(rgbToInt(x, x, x))
+				} else if cell.FG == 16777216 {
+					x := uint8(0xC7)
+					cell.FG = vt10x.Color(rgbToInt(x, x, x))
+				}
 
 				if cell.Char == ' ' || cell.FG != lastColor || cellIsBold != lastIsBold || cellIsItalic != lastIsItalic {
 					var bold string
@@ -254,11 +282,15 @@ func (c *Canvas) applyBG(bg vt10x.Color) string {
 }
 
 func isBold(g vt10x.Glyph) bool {
-	return g.Mode&4 != 0
+	return g.Mode&vt10x.AttrBold != 0
+}
+
+func isDim(g vt10x.Glyph) bool {
+	return g.Mode&vt10x.AttrDim != 0
 }
 
 func isItalic(g vt10x.Glyph) bool {
-	return g.Mode&16 != 0
+	return g.Mode&vt10x.AttrItalic != 0
 }
 
 func generateKeyframes(cast asciicast.Cast, width int) string {
