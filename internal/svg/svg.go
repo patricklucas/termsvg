@@ -103,10 +103,10 @@ func (c *Canvas) getColors(cell vt10x.Glyph) {
 		x := uint8(0xFF)
 		cell.FG = vt10x.Color(rgbToInt(x, x, x))
 	} else if isDim(cell) {
-		x := uint8(0x64)
+		x := uint8(0x74)
 		cell.FG = vt10x.Color(rgbToInt(x, x, x))
 	} else if cell.FG == 16777216 {
-		x := uint8(0xC7)
+		x := uint8(0xD7)
 		cell.FG = vt10x.Color(rgbToInt(x, x, x))
 	}
 
@@ -206,10 +206,10 @@ func (c *Canvas) createFrames() {
 					x := uint8(0xFF)
 					cell.FG = vt10x.Color(rgbToInt(x, x, x))
 				} else if cellIsDim {
-					x := uint8(0x64)
+					x := uint8(0x74)
 					cell.FG = vt10x.Color(rgbToInt(x, x, x))
 				} else if cell.FG == 16777216 {
-					x := uint8(0xC7)
+					x := uint8(0xD7)
 					cell.FG = vt10x.Color(rgbToInt(x, x, x))
 				}
 
