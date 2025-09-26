@@ -198,7 +198,7 @@ func (c *Canvas) createFrames() {
 
 			for col := 0; col < c.Header.Width; col++ {
 				cell := term.Cell(col, row)
-				c.addBG(cell.BG)
+				//c.addBG(cell.BG) // Background colors don't work
 				cellIsBold := isBold(cell)
 				cellIsItalic := isItalic(cell)
 				cellIsUnderline := isUnderline(cell)
@@ -239,7 +239,7 @@ func (c *Canvas) createFrames() {
 
 					if frame != "" {
 						c.Text(lastColummn*colWidth,
-							row*rowHeight, frame, fmt.Sprintf(`class="%s"`, c.colors[color.GetColor(lastColor)]), c.applyBG(cell.BG), bold, ital, underline)
+							row*rowHeight, frame, fmt.Sprintf(`class="%s"`, c.colors[color.GetColor(lastColor)]) /*c.applyBG(cell.BG),*/, bold, ital, underline)
 
 						frame = ""
 					}
